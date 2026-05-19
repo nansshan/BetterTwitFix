@@ -1,29 +1,31 @@
-version: "3"
-
 services:
-  proxy:
-    image: nginx:alpine
-    container_name: twitfix_proxy
-    volumes:
-      - "./twitfix_proxy.conf:/etc/nginx/conf.d/default.conf"
-    ports:
-      - 8088:80
-    depends_on:
-      - twitfix
-
   twitfix:
-    image: twitfix
     build: .
-    container_name: twitfix_main
-    volumes:
-      - "./twitfix.ini:/twitfix/twitfix.ini:ro"
-      - "./config.json:/twitfix/config.json:ro"
+    restart: unless-stopped
+    ports:
+      - "${PORT:-9000}:${PORT:-9000}"
+    environment:
+      PORT: "${PORT:-9000}"
+      RUNNING_SERVERLESS: "1"
+      VXTWITTER_LINK_CACHE: "${VXTWITTER_LINK_CACHE:-db}"
+      VXTWITTER_DATABASE: "${VXTWITTER_DATABASE:-mongodb://db:27017/}"
+      VXTWITTER_CACHE_TABLE: "${VXTWITTER_CACHE_TABLE:-TwiFix}"
+      VXTWITTER_COLOR: "${VXTWITTER_COLOR:-#1DA1F2}"
+      VXTWITTER_APP_NAME: "${VXTWITTER_APP_NAME:-vxTwitter}"
+      VXTWITTER_REPO: "${VXTWITTER_REPO:-https://github.com/dylanpdx/BetterTwitFix}"
+      VXTWITTER_URL: "${VXTWITTER_URL:-https://vxtwitter.com}"
+      VXTWITTER_COMBINATION_METHOD: "${VXTWITTER_COMBINATION_METHOD:-local}"
+      VXTWITTER_GIF_CONVERT_API: "${VXTWITTER_GIF_CONVERT_API:-local}"
+      VXTWITTER_WORKAROUND_TOKENS: "${VXTWITTER_WORKAROUND_TOKENS:-}"
+      DEEPL_API_KEY: "${DEEPL_API_KEY:-}"
     depends_on:
       - db
 
   db:
     image: mongo:5.0.9
-    container_name: twitfix_db
+    restart: unless-stopped
     volumes:
-      - "./db:/data/db"
+      - mongo_data:/data/db
 
+volumes:
+  mongo_data:

@@ -10,6 +10,7 @@ COPY --from=build /usr/local/lib/python3.10/site-packages /usr/local/lib/python3
 RUN pip install -r requirements.txt
 
 FROM python:3.10-alpine AS runner
+ENV PORT=9000
 EXPOSE 9000
 RUN apk add pcre-dev jpeg-dev zlib-dev
 WORKDIR /twitfix
